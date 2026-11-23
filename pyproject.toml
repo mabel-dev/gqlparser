@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=77"]  # 77+ for the SPDX `license` string
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gqlparser"
+dynamic = ["version"]
+description = "Pure-Python parser for GQL (ISO/IEC 39075), the ISO graph query language"
+requires-python = ">=3.11"
+readme = {file = "README.md", content-type = "text/markdown"}
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+authors = [{name = "Justin Joyce", email = "justin.joyce@joocer.com"}]
+maintainers = [{name = "Justin Joyce", email = "justin.joyce@joocer.com"}]
+dependencies = []
+keywords = ["gql", "iso-39075", "graph", "query", "parser"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+    "Topic :: Database",
+    "Topic :: Software Development :: Compilers",
+    "Typing :: Typed",
+]
+
+[project.urls]
+Repository = "https://github.com/mabel-dev/gqlparser"
+Issues = "https://github.com/mabel-dev/gqlparser/issues"
+
+[tool.setuptools]
+packages = ["gqlparser"]
+
+[tool.setuptools.dynamic]
+version = {attr = "gqlparser.__version__.__version__"}
+
+[tool.setuptools.package-data]
+gqlparser = ["py.typed"]
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+
+[tool.isort]
+profile = "black"
+line_length = 100
+force_single_line = true
