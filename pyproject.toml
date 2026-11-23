@@ -35,11 +35,11 @@ version = {attr = "gqlparser.__version__.__version__"}
 [tool.setuptools.package-data]
 gqlparser = ["py.typed"]
 
-[tool.black]
+[tool.ruff]
 line-length = 100
-target-version = ["py311"]
+target-version = "py311"
+# The code examples in the docs align their comments by hand; ruff would undo it.
+extend-exclude = ["*.md"]
 
-[tool.isort]
-profile = "black"
-line_length = 100
-force_single_line = true
+[tool.ruff.lint.isort]
+force-single-line = true

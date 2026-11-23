@@ -63,7 +63,7 @@ def _found(token: Token) -> str:
 
 
 class _Parser:
-    __slots__ = ("tokens", "index", "previous_end", "depth")
+    __slots__ = ("depth", "index", "previous_end", "tokens")
 
     def __init__(self, tokens: list[Token]):
         self.tokens = tokens
@@ -148,9 +148,10 @@ class _Parser:
         first = self.peek()
         graph = None
         if self.accept_word("USE"):
-            graph = self.name("a graph name")
-            if self.is_punct("."):
-                self.unsupported("qualified graph names are not supported yet")
+            graph = [self.name("a graph name")]
+            while self.accept_punct("."):
+                graph.append(self.name("a graph name"))
+            graph = tuple(graph)
         statements = []
         while not self.is_word("RETURN"):
             if self.is_word("MATCH") or (self.is_word("OPTIONAL") and self.is_word("MATCH", 1)):
@@ -163,7 +164,9 @@ class _Parser:
         token = self.peek()
         if token.kind is not TokenKind.END:
             if token.kind is TokenKind.WORD and token.value.upper() in _COMPOSITION_NOT_SUPPORTED:
-                self.unsupported(f"`{token.value.upper()}` (composite queries) is not supported yet")
+                self.unsupported(
+                    f"`{token.value.upper()}` (composite queries) is not supported yet"
+                )
             self.syntax(f"expected the end of the query, found {_found(token)}")
         return ast.Query(graph, tuple(statements), return_statement, self.span_from(first.span))
 
@@ -173,7 +176,9 @@ class _Parser:
             word = token.value.upper()
             if word == "OPTIONAL":
                 if self.is_punct("{", 1) or self.is_punct("(", 1):
-                    self.unsupported("`OPTIONAL` blocks are not supported yet; write `OPTIONAL MATCH`")
+                    self.unsupported(
+                        "`OPTIONAL` blocks are not supported yet; write `OPTIONAL MATCH`"
+                    )
                 self.syntax(f"expected `MATCH` or `RETURN`, found {_found(token)}")
             if word in _STATEMENTS_NOT_SUPPORTED:
                 self.unsupported(f"the `{word}` statement here is not supported yet")
@@ -187,7 +192,9 @@ class _Parser:
         self.expect_word("MATCH")
         token = self.peek()
         if token.kind is TokenKind.WORD and token.value.upper() in _MATCH_MODES_NOT_SUPPORTED:
-            self.unsupported("match modes (`DIFFERENT EDGES`, `REPEATABLE ELEMENTS`) are not supported yet")
+            self.unsupported(
+                "match modes (`DIFFERENT EDGES`, `REPEATABLE ELEMENTS`) are not supported yet"
+            )
         paths = [self.path_pattern()]
         while self.accept_punct(","):
             paths.append(self.path_pattern())
@@ -203,7 +210,9 @@ class _Parser:
         if first.kind in _NAME_KINDS and self.is_punct("=", 1):
             self.unsupported("path variables (`p = ...`) are not supported yet")
         if first.kind is TokenKind.WORD and first.value.upper() in _PATH_PREFIXES_NOT_SUPPORTED:
-            self.unsupported(f"path search prefixes and path modes (`{first.value.upper()}`) are not supported yet")
+            self.unsupported(
+                f"path search prefixes and path modes (`{first.value.upper()}`) are not supported yet"
+            )
         elements: list[ast.NodePattern | ast.EdgePattern] = [self.node_pattern()]
         while (edge := self.edge_pattern_or_none()) is not None:
             elements.append(edge)
@@ -407,7 +416,10 @@ class _Parser:
         if self.is_punct("!") and self.is_punct("=", 1):
             self.unsupported("`!=` is not supported yet; write `<>`")
         operator = self.peek()
-        if operator.kind is not TokenKind.PUNCTUATION or operator.value not in _COMPARISON_OPERATORS:
+        if (
+            operator.kind is not TokenKind.PUNCTUATION
+            or operator.value not in _COMPARISON_OPERATORS
+        ):
             return left
         self.advance()
         right = self.concatenation()
@@ -565,7 +577,10 @@ class _Parser:
             following = self.peek()
             if operand is not None and (
                 self.is_word("IS")
-                or (following.kind is TokenKind.PUNCTUATION and following.value in _COMPARISON_OPERATORS)
+                or (
+                    following.kind is TokenKind.PUNCTUATION
+                    and following.value in _COMPARISON_OPERATORS
+                )
             ):
                 self.unsupported("comparisons in a simple `CASE` `WHEN` are not supported yet")
             condition = self.expression()

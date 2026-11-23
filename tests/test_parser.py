@@ -80,7 +80,7 @@ LIMIT 10"""
 
 def test_exposure_query():
     query = parse(EXPOSURE)
-    assert query.graph.name == "exposure_graph"
+    assert [part.name for part in query.graph] == ["exposure_graph"]
     first, second = query.match_statements
     assert not first.optional and not second.optional
 
@@ -146,13 +146,19 @@ def test_long_path_alternates_nodes_and_edges():
 
 
 def test_element_where():
-    path = parse("MATCH (a:L WHERE a.x > 1)-[e WHERE e.w = 2]->(b) RETURN a").match_statements[0].paths[0]
+    path = (
+        parse("MATCH (a:L WHERE a.x > 1)-[e WHERE e.w = 2]->(b) RETURN a")
+        .match_statements[0]
+        .paths[0]
+    )
     assert fmt(path.elements[0].where) == "(> a.x I:1)"
     assert fmt(path.elements[1].where) == "(= e.w I:2)"
 
 
 def test_several_paths_and_optional_match():
-    query = parse("MATCH (a)-[]->(b), (a)-[]->(c) OPTIONAL MATCH (c)-[]->(d) WHERE d.x = 1 RETURN a")
+    query = parse(
+        "MATCH (a)-[]->(b), (a)-[]->(c) OPTIONAL MATCH (c)-[]->(d) WHERE d.x = 1 RETURN a"
+    )
     first, second = query.match_statements
     assert len(first.paths) == 2
     assert second.optional and fmt(second.where) == "(= d.x I:1)"
@@ -161,7 +167,7 @@ def test_several_paths_and_optional_match():
 def test_delimited_names():
     query = parse('USE `my graph` MATCH (`a b`:"Odd Label") RETURN `a b`.`x y` AS "out"')
     node = query.match_statements[0].paths[0].elements[0]
-    assert query.graph.name == "my graph"
+    assert [part.name for part in query.graph] == ["my graph"]
     assert (node.variable.name, node.label.name) == ("a b", "Odd Label")
     item = query.return_statement.items[0]
     assert fmt(item.expression) == "a b.x y" and item.alias.name == "out"
@@ -169,7 +175,7 @@ def test_delimited_names():
 
 def test_keywords_are_case_insensitive_and_names_keep_case():
     query = parse("use G match (A:Person) return A.Name as N order by N asc skip 1 limit 2")
-    assert query.graph.name == "G"
+    assert [part.name for part in query.graph] == ["G"]
     assert query.match_statements[0].paths[0].elements[0].label.name == "Person"
     result = query.return_statement
     assert result.offset.text == "1" and result.limit.text == "2"
@@ -183,6 +189,12 @@ def test_label_may_be_any_word():
 
 def test_no_use_clause():
     assert parse("MATCH (a) RETURN a").graph is None
+
+
+def test_use_takes_a_qualified_name():
+    graph = parse("USE ws.`my coll`.g MATCH (a) RETURN a").graph
+    assert [part.name for part in graph] == ["ws", "my coll", "g"]
+    assert (graph[1].span.line, graph[1].span.column) == (1, 8)
 
 
 # --- RETURN ---------------------------------------------------------------------
@@ -354,7 +366,6 @@ def test_binary_operation_span_covers_both_operands():
         ("MATCH (a) INSERT (b) RETURN a", "`INSERT`"),
         ("MATCH (a) RETURN a NEXT MATCH (b) RETURN b", "composite"),
         ("MATCH (a) RETURN a UNION MATCH (b) RETURN b", "composite"),
-        ("USE a.b MATCH (a) RETURN a", "qualified graph names"),
         ("MATCH (a) RETURN *", "`RETURN *`"),
         ("MATCH (a) RETURN a.x AS k, COUNT(*) AS n GROUP BY ()", "empty grouping set"),
         ("MATCH (a) RETURN a ORDER BY a.x NULLS LAST", "`NULLS"),
@@ -366,7 +377,7 @@ def test_binary_operation_span_covers_both_operands():
         ("MATCH (a) RETURN a IS NOT LABELED A AS x", "`IS NOT LABELED`"),
         ("MATCH (a) RETURN [1, 2] AS x", "list literals"),
         ("MATCH (a) RETURN {k: 1} AS x", "record literals"),
-        ("MATCH (a) RETURN \"x\" AS x", "double-quoted text"),
+        ('MATCH (a) RETURN "x" AS x', "double-quoted text"),
         ("MATCH (a) RETURN UNKNOWN AS x", "`UNKNOWN`"),
         ("MATCH (a) RETURN EXISTS { MATCH (b) } AS x", "`EXISTS`"),
         ("MATCH (a) RETURN CASE a WHEN > 1 THEN 1 END AS x", "comparisons in a simple"),
@@ -434,7 +445,12 @@ def test_syntax_errors(text, message, position):
 
 @pytest.mark.parametrize(
     "inner",
-    ["(" * 200 + "1" + ")" * 200, "NOT " * 2000 + "a", "- " * 2000 + "1", "f(" * 200 + "1" + ")" * 200],
+    [
+        "(" * 200 + "1" + ")" * 200,
+        "NOT " * 2000 + "a",
+        "- " * 2000 + "1",
+        "f(" * 200 + "1" + ")" * 200,
+    ],
 )
 def test_deep_nesting_is_refused_cleanly(inner):
     err = refused(f"MATCH (a) RETURN {inner} AS x", GqlNotSupportedError)

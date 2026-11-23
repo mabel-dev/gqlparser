@@ -291,7 +291,7 @@ class ReturnStatement:
 class Query:
     """`[USE graph] match_statements RETURN ...`"""
 
-    graph: Identifier | None
+    graph: tuple[Identifier, ...] | None  # the graph name's parts: `USE ws.coll.g` gives three
     match_statements: tuple[MatchStatement, ...]
     return_statement: ReturnStatement
     span: Span

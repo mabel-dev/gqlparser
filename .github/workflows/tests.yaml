@@ -32,6 +32,29 @@ jobs:
       - name: Run tests
         run: python -m pytest tests -q
 
+  # Ruff is pinned because pyproject sets no lint.select: an unpinned ruff would
+  # apply its own default rule set, which changes between releases.
+  lint:
+    name: ruff
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up Python 3.14
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+
+      - name: Install ruff
+        run: python -m pip install --upgrade pip ruff==0.16.2
+
+      - name: Lint
+        run: python -m ruff check --output-format github .
+
+      - name: Check formatting
+        run: python -m ruff format --check .
+
   # The package must build and its metadata must render, or a release would
   # fail at publish time instead of here.
   build:

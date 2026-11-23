@@ -1,8 +1,8 @@
-"""The two errors gqlparser raises.
+"""The errors gqlparser raises.
 
-They are siblings, not parent and child: "not valid GQL" and "valid GQL this
-release does not support" are different answers, and a caller must be able to
-tell them apart without inspecting the message.
+They are siblings, not parent and child: "not valid GQL", "valid GQL this
+release does not support" and "means nothing here" are different answers, and a
+caller must be able to tell them apart without inspecting the message.
 """
 
 
@@ -22,3 +22,8 @@ class GqlSyntaxError(GqlError):
 
 class GqlNotSupportedError(GqlError):
     """The text uses a construct outside the subset this release supports."""
+
+
+class GqlSemanticError(GqlError):
+    """The text is well-formed but means nothing here: an unknown label or
+    variable, a wrong-way edge, or a graph definition that contradicts itself."""

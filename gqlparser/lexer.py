@@ -75,7 +75,7 @@ def tokenize(text: str) -> list[Token]:
 
 
 class _Lexer:
-    __slots__ = ("text", "pos", "line", "column", "tokens")
+    __slots__ = ("column", "line", "pos", "text", "tokens")
 
     def __init__(self, text: str):
         self.text = text
@@ -245,9 +245,7 @@ class _Lexer:
                 "substituted parameters (`$$name`) are not supported yet", line, column
             )
         if i < len(text) and text[i] in _QUOTES:
-            raise GqlNotSupportedError(
-                "quoted parameter names are not supported yet", line, column
-            )
+            raise GqlNotSupportedError("quoted parameter names are not supported yet", line, column)
         if i >= len(text) or not _is_identifier_start(text[i]):
             raise GqlSyntaxError("expected a parameter name after `$`", line, column)
         j = i + 1

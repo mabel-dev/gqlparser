@@ -49,7 +49,7 @@ def test_three_quote_forms_are_distinct_kinds():
 
 
 def test_doubled_quote_is_one_literal_quote():
-    assert kinds_values("'it''s' \"say \"\"hi\"\"\" `a``b`") == [
+    assert kinds_values('\'it\'\'s\' "say ""hi""" `a``b`') == [
         (K.SINGLE_QUOTED, "it's"),
         (K.DOUBLE_QUOTED, 'say "hi"'),
         (K.ACCENT_QUOTED, "a`b"),
