@@ -174,7 +174,7 @@ CASES = [
         "WHERE (\"$e3\".relation = 'impersonates') AND (\"$e4\".relation = 'impersonates')) "
         'AS "$q1" ON "$q1"."$c1" = "s".id '
         'INNER JOIN db.resources AS "t" ON "$q1"."$c2" = "t".id '
-        "WHERE \"s\".name = 'web' GROUP BY \"t\".name",
+        'WHERE "s".name = \'web\' GROUP BY "t".name',
     ),
     Case(
         "quoted DDL names and disconnected paths",

@@ -127,7 +127,9 @@ def test_semantic_errors(gql, message):
 
 
 def test_a_quantified_edge_must_end_where_it_starts():
-    err = refused("USE g MATCH (p:Person)-[:WORKS_AT]->{1,2}(c:Company) RETURN c.name AS n", GqlSemanticError)
+    err = refused(
+        "USE g MATCH (p:Person)-[:WORKS_AT]->{1,2}(c:Company) RETURN c.name AS n", GqlSemanticError
+    )
     assert "`WORKS_AT` runs from `Person` to `Company`, so it can't be repeated" in err.message
 
 
@@ -165,7 +167,10 @@ def test_a_quantified_edge_lowers_to_one_branch_per_length():
     derived = statement["Query"]["body"]["Select"]["from"][0]["joins"][0]["relation"]["Derived"]
     body, branches = derived["subquery"]["body"], 1
     while "SetOperation" in body:
-        assert body["SetOperation"]["op"] == "Union" and body["SetOperation"]["set_quantifier"] == "All"
+        assert (
+            body["SetOperation"]["op"] == "Union"
+            and body["SetOperation"]["set_quantifier"] == "All"
+        )
         body, branches = body["SetOperation"]["left"], branches + 1
     assert branches == 4  # lengths 2, 3, 4 and 5
 

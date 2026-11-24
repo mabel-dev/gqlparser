@@ -456,7 +456,9 @@ class _Lowering:
         relations.append((alias, _sql.table(name, _sql.ident(alias, True, at))))
         return binding
 
-    def bind_quantified(self, edge: ast.EdgePattern, table: EdgeTable, scope: dict, relations) -> _Binding:
+    def bind_quantified(
+        self, edge: ast.EdgePattern, table: EdgeTable, scope: dict, relations
+    ) -> _Binding:
         """A quantified edge `-[:L]->{m,n}` as one derived table of (source key, destination
         key) pairs: a `UNION ALL` of the chains of `m` to `n` repeats of the edge, followed
         by one join to each end like any other edge. The match mode is repeatable elements,
@@ -479,7 +481,9 @@ class _Lowering:
                 )
         quantifier = edge.quantifier
         if quantifier.maximum > 1 and table.source.vertex != table.destination.vertex:
-            start, end = (self.vertices[v].label for v in (table.source.vertex, table.destination.vertex))
+            start, end = (
+                self.vertices[v].label for v in (table.source.vertex, table.destination.vertex)
+            )
             raise GqlSemanticError(
                 f"`{table.label}` runs from `{start}` to `{end}`, so it can't be repeated: "
                 "the second repeat would have to start where the first one ends",

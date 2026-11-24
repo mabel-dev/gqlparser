@@ -314,14 +314,19 @@ class _Parser:
         else:
             maximum = minimum
         if minimum is None:
-            self.unsupported("quantifiers without a lower bound (`{,n}`) are not supported yet", opening)
+            self.unsupported(
+                "quantifiers without a lower bound (`{,n}`) are not supported yet", opening
+            )
         self.expect_punct("}", " to close the quantifier")
         if minimum < 1:
             self.unsupported(
                 "quantifiers that allow zero repeats (`{0,n}`) are not supported yet", opening
             )
         if maximum < minimum:
-            self.syntax(f"the quantifier's upper bound {maximum} is below its lower bound {minimum}", opening)
+            self.syntax(
+                f"the quantifier's upper bound {maximum} is below its lower bound {minimum}",
+                opening,
+            )
         if maximum > _MAX_QUANTIFIER:
             self.unsupported(
                 f"quantifier bounds above {_MAX_QUANTIFIER} are not supported yet", opening

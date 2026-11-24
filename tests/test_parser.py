@@ -397,7 +397,12 @@ def test_not_supported(text, construct):
 
 def test_quantified_edges_parse():
     for text, bounds in (("{1,3}", (1, 3)), ("{2}", (2, 2)), ("{ 1 , 16 }", (1, 16))):
-        edge = parse(f"MATCH (a)-[e:E WHERE e.x = 1]->{text}(b) RETURN a.x AS x").match_statements[0].paths[0].elements[1]
+        edge = (
+            parse(f"MATCH (a)-[e:E WHERE e.x = 1]->{text}(b) RETURN a.x AS x")
+            .match_statements[0]
+            .paths[0]
+            .elements[1]
+        )
         assert (edge.quantifier.minimum, edge.quantifier.maximum) == bounds
         assert edge.where is not None and edge.variable.name == "e"
     left = parse("MATCH (a)<-[:E]-{2}(b) RETURN a.x AS x").match_statements[0].paths[0].elements[1]
