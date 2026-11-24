@@ -341,9 +341,14 @@ def test_binary_operation_span_covers_both_operands():
         ("MATCH (a)<-(b) RETURN a", "abbreviated"),
         ("MATCH (a)-(b) RETURN a", "abbreviated"),
         ("MATCH (a)~[e]~(b) RETURN a", "undirected"),
-        ("MATCH (a)-[e]->{1,3}(b) RETURN a", "quantified"),
-        ("MATCH (a)-[e]->*(b) RETURN a", "quantified"),
-        ("MATCH (a)-[e]->+(b) RETURN a", "quantified"),
+        ("MATCH (a)-[e]->*(b) RETURN a", "the quantifier `*`"),
+        ("MATCH (a)-[e]->+(b) RETURN a", "the quantifier `+`"),
+        ("MATCH (a)-[e]->?(b) RETURN a", "the quantifier `?`"),
+        ("MATCH (a)-[e]->{1,}(b) RETURN a", "open-ended quantifiers"),
+        ("MATCH (a)-[e]->{,3}(b) RETURN a", "without a lower bound"),
+        ("MATCH (a)-[e]->{0,3}(b) RETURN a", "zero repeats"),
+        ("MATCH (a)-[e]->{0}(b) RETURN a", "zero repeats"),
+        ("MATCH (a)-[e]->{1,17}(b) RETURN a", "bounds above 16"),
         ("MATCH ((a)-[e]->(b)) RETURN a", "parenthesized path"),
         ("MATCH p = (a)-[e]->(b) RETURN a", "path variables"),
         ("MATCH ANY SHORTEST (a)-[e]->(b) RETURN a", "path search prefixes"),
@@ -390,6 +395,27 @@ def test_not_supported(text, construct):
     assert "not supported yet" in err.message
 
 
+def test_quantified_edges_parse():
+    for text, bounds in (("{1,3}", (1, 3)), ("{2}", (2, 2)), ("{ 1 , 16 }", (1, 16))):
+        edge = parse(f"MATCH (a)-[e:E WHERE e.x = 1]->{text}(b) RETURN a.x AS x").match_statements[0].paths[0].elements[1]
+        assert (edge.quantifier.minimum, edge.quantifier.maximum) == bounds
+        assert edge.where is not None and edge.variable.name == "e"
+    left = parse("MATCH (a)<-[:E]-{2}(b) RETURN a.x AS x").match_statements[0].paths[0].elements[1]
+    assert left.direction is D.POINTING_LEFT and left.quantifier.minimum == 2
+
+
+def test_an_edge_without_a_quantifier_has_none():
+    edge = parse("MATCH (a)-[:E]->(b) RETURN a.x AS x").match_statements[0].paths[0].elements[1]
+    assert edge.quantifier is None
+
+
+def test_the_quantifier_span_is_inside_the_edge_span():
+    text = "MATCH (a)-[:E]->{1,3}(b) RETURN a.x AS x"
+    edge = parse(text).match_statements[0].paths[0].elements[1]
+    assert text[edge.quantifier.span.start : edge.quantifier.span.end] == "{1,3}"
+    assert text[edge.span.start : edge.span.end] == "-[:E]->{1,3}"
+
+
 def test_not_supported_points_at_the_construct():
     err = refused("MATCH (a)\n  -[e]-(b) RETURN a", GqlNotSupportedError)
     assert (err.line, err.column) == (2, 7)
@@ -411,6 +437,10 @@ def test_not_supported_points_at_the_construct():
         ("MATCH (a)- [e]->(b) RETURN a", "write `-[` without spaces", (1, 12)),
         ("MATCH (a)-[e] ->(b) RETURN a", "write `]->` without spaces", (1, 15)),
         ("MATCH (a)-[e]->", "expected `(` to start a node pattern, found the end of the query", (1, 16)),
+        ("MATCH (a)-[e]->{}(b) RETURN a", "expected a whole number, found `}`", (1, 17)),
+        ("MATCH (a)-[e]->{x}(b) RETURN a", "expected a whole number, found `x`", (1, 17)),
+        ("MATCH (a)-[e]->{1,2(b) RETURN a", "expected `}` to close the quantifier, found `(`", (1, 20)),
+        ("MATCH (a)-[e]->{3,2}(b) RETURN a", "upper bound 2 is below its lower bound 3", (1, 16)),
         ("MATCH (a) RETURN", "expected an expression, found the end of the query", (1, 17)),
         ("MATCH (a) RETURN a,", "expected an expression, found the end of the query", (1, 20)),
         ("MATCH (a) RETURN a AS", "expected an alias, found the end of the query", (1, 22)),

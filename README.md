@@ -79,6 +79,11 @@ The SQL it produces:
 - **Temporal values:** temporal literals become `CAST('...' AS DATE)` (or
   `TIME` / `TIMESTAMP`), `DURATION 'P30D'` becomes `INTERVAL '30' DAY`, and
   `COLLECT_LIST` becomes `ARRAY_AGG`.
+- **Quantified edges:** `-[:L]->{m,n}` is one derived table of (source key,
+  destination key) pairs: the `UNION ALL` of the chains of `m` to `n` repeats of
+  the edge, each joined to the next through the vertex between them. It is joined to
+  its two ends like any other edge. Every walk is a row, so `COUNT(*)` counts walks;
+  `RETURN DISTINCT` counts nodes. A `WHERE` inside the brackets applies to every repeat.
 - **Labels and match mode:** a node without a label takes it from an adjacent
   edge when the graph makes that unambiguous. The match mode is repeatable
   elements, so no edge-inequality predicates are added.
@@ -164,6 +169,7 @@ naming the construct:
 | `MATCH` and `OPTIONAL MATCH`, with comma-separated paths and a `WHERE` | 0.0.1 |
 | node patterns `(v:Label WHERE ...)`; each part optional | 0.0.1 |
 | full edge patterns `-[e:Label WHERE ...]->` and `<-[e:Label WHERE ...]-`; each part optional | 0.0.1 |
+| bounded quantified edges `-[e:Label]->{m}` and `{m,n}`, with `1 <= m <= n <= 16` | 0.0.3 |
 | `RETURN [DISTINCT \| ALL] expr [AS name], ...` | 0.0.1 |
 | `GROUP BY name, ...` | 0.0.1 |
 | `ORDER BY expr [ASC \| ASCENDING \| DESC \| DESCENDING], ...` | 0.0.1 |
@@ -185,7 +191,8 @@ naming the construct:
 **Not supported yet.** Each raises `GqlNotSupportedError` naming the construct:
 - **edges:** abbreviated edges (`->`, `<-`, `-`), any-direction edges
   (`-[...]-`), `<-[...]->`, and undirected `~` edges;
-- **paths:** quantified paths (`{m,n}`, `*`, `+`, `?`), parenthesized path
+- **paths:** unbounded and zero-length quantifiers (`*`, `+`, `?`, `{m,}`, `{,n}`,
+  `{0,n}`), quantifier bounds above 16, quantified parenthesized path
   patterns, path variables (`p = ...`), search prefixes and path modes
   (`ANY`, `SHORTEST`, `TRAIL`, ...), match modes (`DIFFERENT EDGES`, ...),
   `KEEP` and `YIELD`;
@@ -213,6 +220,9 @@ naming the construct:
   property access on anything but an element variable (`p.a.b`);
 - **RETURN:** an item that isn't a property and has no `AS`; aggregates mixed
   with other items without `GROUP BY`;
+- **quantified edges:** using a quantified edge's variable outside its brackets; one in
+  an `OPTIONAL MATCH`; one that runs between two different vertex tables (it can't
+  repeat), except `{1}`;
 - **durations:** anything but one whole-number unit (`'P1Y2M'`, `'PT1.5S'`);
 - **variable names:** names starting with `$`.
 

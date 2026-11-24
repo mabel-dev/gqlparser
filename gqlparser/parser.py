@@ -42,6 +42,10 @@ _NAME_KINDS = frozenset({TokenKind.WORD, TokenKind.ACCENT_QUOTED, TokenKind.DOUB
 # shortcut: one function per precedence level caps nesting at 32; upgrade to precedence
 # climbing (~3 frames per level) if real queries nest deeper.
 _MAX_NESTING = 32
+# A quantified edge lowers to one chain of joins per length, so the SQL grows with the square
+# of the upper bound.
+# shortcut: bounds above 16 are refused; upgrade with a native path operator rather than more joins.
+_MAX_QUANTIFIER = 16
 
 
 def parse(text: str) -> ast.Query:
@@ -285,10 +289,53 @@ class _Parser:
             direction = ast.EdgeDirection.POINTING_LEFT
         self.require_adjacent(close, arrow)
         self.advance()
+        quantifier = self.quantifier_or_none()
+        return ast.EdgePattern(
+            variable, label, where, direction, quantifier, self.span_from(first.span)
+        )
+
+    def quantifier_or_none(self) -> ast.Quantifier | None:
+        """`{m}` or `{m,n}` after an edge. The rest of GQL's quantifiers are unbounded or can
+        be zero-length, which need more than a fixed set of joins, so they are refused."""
         following = self.peek()
-        if following.kind is TokenKind.PUNCTUATION and following.value in _QUANTIFIER_STARTS:
-            self.unsupported("quantified paths are not supported yet")
-        return ast.EdgePattern(variable, label, where, direction, self.span_from(first.span))
+        if following.kind is not TokenKind.PUNCTUATION or following.value not in _QUANTIFIER_STARTS:
+            return None
+        if following.value != "{":
+            self.unsupported(
+                f"the quantifier `{following.value}` is not supported yet; "
+                "only bounded `{m}` and `{m,n}` quantifiers are"
+            )
+        opening = self.advance()
+        minimum = self.quantifier_bound(allow_missing=True)
+        if self.accept_punct(","):
+            if self.is_punct("}"):
+                self.unsupported("open-ended quantifiers (`{m,}`) are not supported yet")
+            maximum = self.quantifier_bound()
+        else:
+            maximum = minimum
+        if minimum is None:
+            self.unsupported("quantifiers without a lower bound (`{,n}`) are not supported yet", opening)
+        self.expect_punct("}", " to close the quantifier")
+        if minimum < 1:
+            self.unsupported(
+                "quantifiers that allow zero repeats (`{0,n}`) are not supported yet", opening
+            )
+        if maximum < minimum:
+            self.syntax(f"the quantifier's upper bound {maximum} is below its lower bound {minimum}", opening)
+        if maximum > _MAX_QUANTIFIER:
+            self.unsupported(
+                f"quantifier bounds above {_MAX_QUANTIFIER} are not supported yet", opening
+            )
+        return ast.Quantifier(minimum, maximum, self.span_from(opening.span))
+
+    def quantifier_bound(self, allow_missing: bool = False) -> int | None:
+        token = self.peek()
+        if token.kind is TokenKind.INTEGER:
+            self.advance()
+            return int(token.value)
+        if allow_missing and self.is_punct(","):
+            return None
+        self.syntax(f"expected a whole number, found {_found(token)}")
 
     # --- RETURN ----------------------------------------------------------------
 

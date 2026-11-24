@@ -3,7 +3,15 @@
 Every change to the syntax tree (a node added, renamed or reshaped) is listed
 here, because the tree is public API.
 
-## 0.0.2 (unreleased)
+## 0.0.3 (2026-11-24)
+
+- Bounded quantified edges: `-[e:L]->{m}` and `{m,n}` (`1 <= m <= n <= 16`). **Syntax tree
+  change:** new node `Quantifier(minimum, maximum, span)`, and `EdgePattern` gains a
+  `quantifier` field (`None` when absent) before `span`. `lower` turns a quantified edge
+  into a derived table, the `UNION ALL` of the chains of `m` to `n` repeats. `*`, `+`, `?`,
+  `{m,}`, `{,n}`, `{0,n}` and bounds above 16 raise `GqlNotSupportedError`.
+
+## 0.0.2 (2026-11-23)
 
 - Lowering to SQL: `lower(query, graph)` returns a sqlparser-rs statement dict,
   in the format of the release named by `SQLPARSER_FORMAT` (`"0.63"`).

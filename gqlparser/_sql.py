@@ -201,6 +201,21 @@ def sort_item(expression: dict, descending: bool) -> dict:
     }
 
 
+def union_all(queries: list[dict]) -> dict:
+    """The bodies of `queries` joined by `UNION ALL`, left to right, as one query."""
+    body = queries[0]["body"]
+    for next_query in queries[1:]:
+        body = {
+            "SetOperation": {
+                "op": "Union",
+                "set_quantifier": "All",
+                "left": body,
+                "right": next_query["body"],
+            }
+        }
+    return {**queries[0], "body": body}
+
+
 def query(
     *,
     at: Span,

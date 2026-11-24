@@ -123,6 +123,53 @@ def test_semantic_errors(gql, message):
     assert message in err.message, err.message
 
 
+# --- quantified edges --------------------------------------------------------------
+
+
+def test_a_quantified_edge_must_end_where_it_starts():
+    err = refused("USE g MATCH (p:Person)-[:WORKS_AT]->{1,2}(c:Company) RETURN c.name AS n", GqlSemanticError)
+    assert "`WORKS_AT` runs from `Person` to `Company`, so it can't be repeated" in err.message
+
+
+def test_one_repeat_of_an_edge_between_different_nodes_is_fine():
+    lower("USE g MATCH (p:Person)-[:WORKS_AT]->{1}(c:Company) RETURN c.name AS n")
+
+
+def test_a_quantified_edge_where_cannot_name_other_variables():
+    err = refused(
+        "USE g MATCH (a:Person)-[e:KNOWS WHERE a.age > 1]->{1,2}(b:Person) RETURN b.name AS n",
+        GqlSemanticError,
+    )
+    assert "`a` is not a variable here" in err.message
+
+
+@pytest.mark.parametrize(
+    "gql, message",
+    [
+        ("USE g MATCH (a:Person)-[k:KNOWS]->{1,2}(b:Person) RETURN k.x AS x", "`k` is a quantified edge"),
+        ("USE g MATCH (a:Person)-[k:KNOWS]->{1,2}(b:Person) RETURN k AS x", "`k` is a quantified edge"),
+        ("USE g MATCH (a:Person)-[k:KNOWS]->{1,2}(b:Person) WHERE k.x = 1 RETURN a.name AS n", "`k` is a quantified edge"),
+        ("USE g MATCH (a:Person) OPTIONAL MATCH (a)-[:KNOWS]->{1,2}(b:Person) RETURN b.name AS n",
+         "a quantified edge inside OPTIONAL MATCH"),
+        ("USE g MATCH (a:Person)-[k:KNOWS]->{1,2}(b:Person)-[k:KNOWS]->{1,2}(c:Person) RETURN a.name AS n",
+         "`k` is used twice"),
+    ],
+)  # fmt: skip
+def test_quantified_edge_refusals(gql, message):
+    err = refused(gql, GqlNotSupportedError)
+    assert message in err.message, err.message
+
+
+def test_a_quantified_edge_lowers_to_one_branch_per_length():
+    statement = lower("USE g MATCH (a:Person)-[:KNOWS]->{2,5}(b:Person) RETURN b.name AS n")
+    derived = statement["Query"]["body"]["Select"]["from"][0]["joins"][0]["relation"]["Derived"]
+    body, branches = derived["subquery"]["body"], 1
+    while "SetOperation" in body:
+        assert body["SetOperation"]["op"] == "Union" and body["SetOperation"]["set_quantifier"] == "All"
+        body, branches = body["SetOperation"]["left"], branches + 1
+    assert branches == 4  # lengths 2, 3, 4 and 5
+
+
 def test_inferred_labels_that_conflict():
     err = refused(
         "USE g MATCH (c:Company)<-[:WORKS_AT]-(x)<-[:WORKS_AT]-(p:Person) RETURN c.name",

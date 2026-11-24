@@ -1,6 +1,6 @@
 # Lowering GQL to SQL
 
-**Status:** BUILT, 2026-11-23, in 0.0.2 (unreleased). The body below is the
+**Status:** BUILT, 2026-11-23, in 0.0.2; quantified edges (D9) in 0.0.3. The body below is the
 proposal as written. Where the build differs from it, the difference is
 recorded here:
 
@@ -74,6 +74,9 @@ or Opteryx: it builds the dict by hand.
 - **Match mode (D4):** repeatable elements.
 - **Self-joins (D5):** an edge on a vertex table is a plain self-join.
 - **Errors (D6):** a wrong-way edge gets a friendly error.
+- **Quantified edges (D9, architect, 2026-11-23):** every walk is a row; zero repeats
+  (`{0,n}`) are refused; the upper bound is capped at 16; each repeat is joined to its
+  vertex. Unbounded quantifiers need a native path operator in the engine.
 
 ## 1. `parse_property_graph`
 
@@ -124,6 +127,7 @@ Each error carries the line and column of the GQL text at fault.
 | anonymous element | a generated alias `$e1`, `$v1`, ... (cannot collide with a GQL variable) |
 | element `WHERE`, `MATCH ... WHERE` | ANDed into that `MATCH`'s filter |
 | successive `MATCH` | inner joins on shared variables |
+| `(a)-[e:L]->{m,n}(b)` | one derived table of (source key, destination key): the `UNION ALL` over `k` = `m`..`n` of `k` copies of `L` chained through the vertex between them (`e1.<dst key> = v.<key> AND e2.<src key> = v.<key>`), joined to `a` and `b` like a single edge; a `WHERE` in the brackets is ANDed per copy |
 | `OPTIONAL MATCH` block | the block lowered **as one derived table** (its joins and its `WHERE`), `LEFT JOIN`ed on the shared variables |
 | `v.p` | `v.<column of p>` |
 | `RETURN` items, `DISTINCT` | the `SELECT` list, `SELECT DISTINCT` |
@@ -140,6 +144,13 @@ Each error carries the line and column of the GQL text at fault.
 **Match mode (D4).** The default is repeatable elements, so the lowering emits
 no edge-inequality predicates. An explicit `DIFFERENT EDGES` is already refused
 by the parser.
+
+**Quantified edges.** Only bounded quantifiers lower, because a fixed set of joins
+cannot follow an unbounded path. Zero repeats (`{0,n}`) are refused because a zero-length
+path makes its two ends the same node, which a pair of keys cannot say. Every walk is one
+row (the repeatable-elements default, D4); each copy of the edge is joined to its vertex,
+so a dangling edge is dropped exactly as the written-out chain would drop it. The edge's
+variable stands for several edges, so using it outside its brackets is refused.
 
 **Self-joins (D5).** An edge stored on a vertex table (a foreign key on the
 row) lowers to a plain self-join on that table's key. Reading the table once

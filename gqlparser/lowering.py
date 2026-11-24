@@ -66,16 +66,26 @@ class _Binding:
 
     `alias` qualifies its columns. When the variable was bound by an OPTIONAL
     MATCH, `alias` is the derived table's and `projected` maps each of the
-    element's columns to the name it was projected under.
+    element's columns to the name it was projected under. A quantified edge is
+    a derived table too, projecting only its endpoint keys; `quantified` marks it
+    because it stands for several edges at once, so it has no values of its own.
     """
 
-    __slots__ = ("alias", "element", "is_edge", "projected")
+    __slots__ = ("alias", "element", "is_edge", "projected", "quantified")
 
-    def __init__(self, element, is_edge: bool, alias: str, projected: dict | None = None):
+    def __init__(
+        self,
+        element,
+        is_edge: bool,
+        alias: str,
+        projected: dict | None = None,
+        quantified: bool = False,
+    ):
         self.element = element
         self.is_edge = is_edge
         self.alias = alias
         self.projected = projected
+        self.quantified = quantified
 
 
 def _column(binding: _Binding, column: SqlName, at: Span) -> dict:
@@ -190,17 +200,26 @@ class _Lowering:
         frm.where.extend(self.filters(statement, scope, None))
 
     def filters(self, statement: ast.MatchStatement, scope: dict, outer: dict | None) -> list[dict]:
+        # a quantified edge's WHERE applies to each repeat, so it is lowered inside the chain
         found = [
             element.where
             for path in statement.paths
             for element in path.elements
-            if element.where is not None
+            if element.where is not None and not _quantified(element)
         ]
         if statement.where is not None:
             found.append(statement.where)
         return [self.expression(e, scope, outer) for e in found]
 
     def optional_match(self, statement: ast.MatchStatement, scope: dict, frm: _From) -> None:
+        for path in statement.paths:
+            for element in path.elements:
+                if _quantified(element):
+                    raise GqlNotSupportedError(
+                        "a quantified edge inside OPTIONAL MATCH is not supported yet",
+                        element.span.line,
+                        element.span.column,
+                    )
         inner_scope: dict[str, _Binding] = {}
         relations: list[tuple[str, dict]] = []
         predicates: list[tuple[dict, set]] = []
@@ -313,7 +332,10 @@ class _Lowering:
                     and variable not in scope
                 ):
                     shared.append(variable)
-                bindings.append(self.bind(element, table, scope, relations))
+                if _quantified(element):
+                    bindings.append(self.bind_quantified(element, table, scope, relations))
+                else:
+                    bindings.append(self.bind(element, table, scope, relations))
             for i in range(1, len(elements), 2):
                 self.connect(elements, bindings, i, predicates)
         return shared
@@ -433,6 +455,110 @@ class _Lowering:
         name = [_sql.ident(part.value, part.quoted, at) for part in table.relation]
         relations.append((alias, _sql.table(name, _sql.ident(alias, True, at))))
         return binding
+
+    def bind_quantified(self, edge: ast.EdgePattern, table: EdgeTable, scope: dict, relations) -> _Binding:
+        """A quantified edge `-[:L]->{m,n}` as one derived table of (source key, destination
+        key) pairs: a `UNION ALL` of the chains of `m` to `n` repeats of the edge, followed
+        by one join to each end like any other edge. The match mode is repeatable elements,
+        so every walk is a row (`RETURN DISTINCT` to count nodes), as when the chain is
+        written out by hand."""
+        at = edge.span
+        variable = edge.variable
+        if variable is not None:
+            if variable.name.startswith("$"):
+                raise GqlNotSupportedError(
+                    "variable names starting with `$` are not supported yet",
+                    variable.span.line,
+                    variable.span.column,
+                )
+            if variable.name in scope:
+                raise GqlNotSupportedError(
+                    f"`{variable.name}` is used twice; a quantified edge variable can't be reused",
+                    variable.span.line,
+                    variable.span.column,
+                )
+        quantifier = edge.quantifier
+        if quantifier.maximum > 1 and table.source.vertex != table.destination.vertex:
+            start, end = (self.vertices[v].label for v in (table.source.vertex, table.destination.vertex))
+            raise GqlSemanticError(
+                f"`{table.label}` runs from `{start}` to `{end}`, so it can't be repeated: "
+                "the second repeat would have to start where the first one ends",
+                at.line,
+                at.column,
+            )
+        if {c.value for c in table.source.key} & {c.value for c in table.destination.key}:
+            raise GqlNotSupportedError(
+                f"`{table.label}` uses the same column as a source and a destination key; "
+                "a quantified edge can't tell its two ends apart yet",
+                at.line,
+                at.column,
+            )
+        projected: dict[str, str] = {}
+        for column in (*table.source.key, *table.destination.key):
+            projected[column.value] = f"$c{len(projected) + 1}"
+
+        alias = self.fresh("q")
+        chains = [
+            self.chain(edge, table, length, projected)
+            for length in range(quantifier.minimum, quantifier.maximum + 1)
+        ]
+        subquery = chains[0] if len(chains) == 1 else _sql.union_all(chains)
+        relations.append((alias, _sql.derived(subquery, _sql.ident(alias, True, at))))
+        binding = _Binding(table, True, alias, projected, quantified=True)
+        if variable is not None:
+            scope[variable.name] = binding
+        return binding
+
+    def chain(self, edge: ast.EdgePattern, table: EdgeTable, length: int, projected: dict) -> dict:
+        """`length` repeats of `table`, each joined to the next through the vertex between
+        them, projecting the first repeat's source key and the last one's destination key."""
+        at = edge.span
+        vertex = self.vertices[table.destination.vertex]
+        edges = [_Binding(table, True, self.fresh("e")) for _ in range(length)]
+        between = [_Binding(vertex, False, self.fresh("v")) for _ in range(length - 1)]
+
+        def factor(binding: _Binding, element) -> tuple[str, dict]:
+            name = [_sql.ident(part.value, part.quoted, at) for part in element.relation]
+            return binding.alias, _sql.table(name, _sql.ident(binding.alias, True, at))
+
+        relations = [factor(b, table) for b in edges] + [factor(b, vertex) for b in between]
+        predicates: list[tuple[dict, set]] = []
+        for before, node, after in zip(edges, between, edges[1:]):
+            for side, endpoint in ((before, table.destination), (after, table.source)):
+                for edge_column, node_column in zip(endpoint.key, endpoint.references):
+                    predicates.append(
+                        (
+                            _sql.binary(
+                                _column(side, edge_column, at), "Eq", _column(node, node_column, at)
+                            ),
+                            {side.alias, node.alias},
+                        )
+                    )
+        inner = _From()
+        inner.add(relations, predicates)
+        if edge.where is not None:
+            for repeat in edges:
+                scope = {} if edge.variable is None else {edge.variable.name: repeat}
+                inner.where.append(self.expression(edge.where, scope))
+        projection = [
+            _sql.select_item(_column(edges[0], c, at), _sql.ident(projected[c.value], True, at))
+            for c in table.source.key
+        ] + [
+            _sql.select_item(_column(edges[-1], c, at), _sql.ident(projected[c.value], True, at))
+            for c in table.destination.key
+        ]
+        return _sql.query(
+            at=at,
+            distinct=False,
+            projection=projection,
+            relation=inner.relation,
+            joins=inner.joins,
+            selection=_sql.conjunction(inner.where),
+            group_by=[],
+            order_by=[],
+            limit=None,
+            offset=None,
+        )
 
     def connect(self, elements, bindings, i: int, predicates) -> None:
         """Join edge `i` to the nodes either side of it, in its declared direction."""
@@ -561,6 +687,13 @@ class _Lowering:
 
     def binding_for(self, variable: ast.Variable, scope: dict, outer: dict | None) -> _Binding:
         if variable.name in scope:
+            if scope[variable.name].quantified:
+                raise GqlNotSupportedError(
+                    f"`{variable.name}` is a quantified edge, so it stands for several edges at "
+                    "once; using it outside the edge pattern is not supported yet",
+                    variable.span.line,
+                    variable.span.column,
+                )
             return scope[variable.name]
         if outer is not None and variable.name in outer:
             raise GqlNotSupportedError(
@@ -674,6 +807,10 @@ class _Lowering:
             amount = int(date_amount) * 7 if date_unit == "W" else int(date_amount)
             return _sql.interval(str(amount), _DATE_FIELDS[date_unit], e.span)
         return _sql.interval(time_amount, _TIME_FIELDS[time_unit], e.span)
+
+
+def _quantified(element) -> bool:
+    return type(element) is ast.EdgePattern and element.quantifier is not None
 
 
 def _has_aggregate(e) -> bool:

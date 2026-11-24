@@ -225,13 +225,26 @@ class NodePattern:
 
 
 @dataclass(frozen=True, slots=True)
+class Quantifier:
+    """`{minimum, maximum}` after an edge pattern: the edge repeats `minimum` to `maximum`
+    times in a row. `{n}` reads as `{n, n}`. Only bounded quantifiers with `minimum >= 1`
+    are parsed."""
+
+    minimum: int
+    maximum: int
+    span: Span
+
+
+@dataclass(frozen=True, slots=True)
 class EdgePattern:
-    """`-[variable:label WHERE where]->` or `<-[...]-`; each part optional."""
+    """`-[variable:label WHERE where]->` or `<-[...]-`, then an optional quantifier
+    (`->{1,3}`); each part optional. A quantified edge's `where` applies to each repeat."""
 
     variable: Identifier | None
     label: Identifier | None
     where: Expression | None
     direction: EdgeDirection
+    quantifier: Quantifier | None
     span: Span
 
 

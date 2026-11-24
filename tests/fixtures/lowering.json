@@ -1613,6 +1613,538 @@
    "with": null
   }
  },
+ "left-pointing quantified edge with an exact count": {
+  "Query": {
+   "body": {
+    "Select": {
+     "cluster_by": [],
+     "connect_by": [],
+     "distinct": null,
+     "distribute_by": [],
+     "exclude": null,
+     "flavor": "Standard",
+     "from": [
+      {
+       "joins": [
+        {
+         "global": false,
+         "join_operator": {
+          "Inner": {
+           "On": {
+            "BinaryOp": {
+             "left": {
+              "CompoundIdentifier": [
+               {
+                "quote_style": "\"",
+                "value": "$q1"
+               },
+               {
+                "quote_style": "\"",
+                "value": "$c2"
+               }
+              ]
+             },
+             "op": "Eq",
+             "right": {
+              "CompoundIdentifier": [
+               {
+                "quote_style": "\"",
+                "value": "a"
+               },
+               {
+                "quote_style": null,
+                "value": "id"
+               }
+              ]
+             }
+            }
+           }
+          }
+         },
+         "relation": {
+          "Derived": {
+           "alias": {
+            "at": null,
+            "columns": [],
+            "explicit": true,
+            "name": {
+             "quote_style": "\"",
+             "value": "$q1"
+            }
+           },
+           "lateral": false,
+           "sample": null,
+           "subquery": {
+            "body": {
+             "Select": {
+              "cluster_by": [],
+              "connect_by": [],
+              "distinct": null,
+              "distribute_by": [],
+              "exclude": null,
+              "flavor": "Standard",
+              "from": [
+               {
+                "joins": [
+                 {
+                  "global": false,
+                  "join_operator": {
+                   "Inner": {
+                    "On": {
+                     "BinaryOp": {
+                      "left": {
+                       "CompoundIdentifier": [
+                        {
+                         "quote_style": "\"",
+                         "value": "$e2"
+                        },
+                        {
+                         "quote_style": null,
+                         "value": "b"
+                        }
+                       ]
+                      },
+                      "op": "Eq",
+                      "right": {
+                       "CompoundIdentifier": [
+                        {
+                         "quote_style": "\"",
+                         "value": "$v4"
+                        },
+                        {
+                         "quote_style": null,
+                         "value": "id"
+                        }
+                       ]
+                      }
+                     }
+                    }
+                   }
+                  },
+                  "relation": {
+                   "Table": {
+                    "alias": {
+                     "at": null,
+                     "columns": [],
+                     "explicit": true,
+                     "name": {
+                      "quote_style": "\"",
+                      "value": "$v4"
+                     }
+                    },
+                    "args": null,
+                    "index_hints": [],
+                    "json_path": null,
+                    "name": [
+                     {
+                      "Identifier": {
+                       "quote_style": null,
+                       "value": "db"
+                      }
+                     },
+                     {
+                      "Identifier": {
+                       "quote_style": null,
+                       "value": "people"
+                      }
+                     }
+                    ],
+                    "partitions": [],
+                    "sample": null,
+                    "version": null,
+                    "with_hints": [],
+                    "with_ordinality": false
+                   }
+                  }
+                 },
+                 {
+                  "global": false,
+                  "join_operator": {
+                   "Inner": {
+                    "On": {
+                     "BinaryOp": {
+                      "left": {
+                       "CompoundIdentifier": [
+                        {
+                         "quote_style": "\"",
+                         "value": "$e3"
+                        },
+                        {
+                         "quote_style": null,
+                         "value": "a"
+                        }
+                       ]
+                      },
+                      "op": "Eq",
+                      "right": {
+                       "CompoundIdentifier": [
+                        {
+                         "quote_style": "\"",
+                         "value": "$v4"
+                        },
+                        {
+                         "quote_style": null,
+                         "value": "id"
+                        }
+                       ]
+                      }
+                     }
+                    }
+                   }
+                  },
+                  "relation": {
+                   "Table": {
+                    "alias": {
+                     "at": null,
+                     "columns": [],
+                     "explicit": true,
+                     "name": {
+                      "quote_style": "\"",
+                      "value": "$e3"
+                     }
+                    },
+                    "args": null,
+                    "index_hints": [],
+                    "json_path": null,
+                    "name": [
+                     {
+                      "Identifier": {
+                       "quote_style": null,
+                       "value": "db"
+                      }
+                     },
+                     {
+                      "Identifier": {
+                       "quote_style": null,
+                       "value": "knows"
+                      }
+                     }
+                    ],
+                    "partitions": [],
+                    "sample": null,
+                    "version": null,
+                    "with_hints": [],
+                    "with_ordinality": false
+                   }
+                  }
+                 }
+                ],
+                "relation": {
+                 "Table": {
+                  "alias": {
+                   "at": null,
+                   "columns": [],
+                   "explicit": true,
+                   "name": {
+                    "quote_style": "\"",
+                    "value": "$e2"
+                   }
+                  },
+                  "args": null,
+                  "index_hints": [],
+                  "json_path": null,
+                  "name": [
+                   {
+                    "Identifier": {
+                     "quote_style": null,
+                     "value": "db"
+                    }
+                   },
+                   {
+                    "Identifier": {
+                     "quote_style": null,
+                     "value": "knows"
+                    }
+                   }
+                  ],
+                  "partitions": [],
+                  "sample": null,
+                  "version": null,
+                  "with_hints": [],
+                  "with_ordinality": false
+                 }
+                }
+               }
+              ],
+              "group_by": {
+               "Expressions": [
+                [],
+                []
+               ]
+              },
+              "having": null,
+              "into": null,
+              "lateral_views": [],
+              "named_window": [],
+              "optimizer_hints": [],
+              "prewhere": null,
+              "projection": [
+               {
+                "ExprWithAlias": {
+                 "alias": {
+                  "quote_style": "\"",
+                  "value": "$c1"
+                 },
+                 "expr": {
+                  "CompoundIdentifier": [
+                   {
+                    "quote_style": "\"",
+                    "value": "$e2"
+                   },
+                   {
+                    "quote_style": null,
+                    "value": "a"
+                   }
+                  ]
+                 }
+                }
+               },
+               {
+                "ExprWithAlias": {
+                 "alias": {
+                  "quote_style": "\"",
+                  "value": "$c2"
+                 },
+                 "expr": {
+                  "CompoundIdentifier": [
+                   {
+                    "quote_style": "\"",
+                    "value": "$e3"
+                   },
+                   {
+                    "quote_style": null,
+                    "value": "b"
+                   }
+                  ]
+                 }
+                }
+               }
+              ],
+              "qualify": null,
+              "select_modifiers": null,
+              "select_token": {
+               "token": {
+                "Word": {
+                 "keyword": "SELECT",
+                 "quote_style": null,
+                 "value": "SELECT"
+                }
+               }
+              },
+              "selection": null,
+              "sort_by": [],
+              "top": null,
+              "top_before_distinct": false,
+              "value_table_mode": null,
+              "window_before_qualify": false
+             }
+            },
+            "fetch": null,
+            "for_clause": null,
+            "format_clause": null,
+            "limit_clause": null,
+            "locks": [],
+            "order_by": null,
+            "pipe_operators": [],
+            "settings": null,
+            "with": null
+           }
+          }
+         }
+        },
+        {
+         "global": false,
+         "join_operator": {
+          "Inner": {
+           "On": {
+            "BinaryOp": {
+             "left": {
+              "CompoundIdentifier": [
+               {
+                "quote_style": "\"",
+                "value": "$q1"
+               },
+               {
+                "quote_style": "\"",
+                "value": "$c1"
+               }
+              ]
+             },
+             "op": "Eq",
+             "right": {
+              "CompoundIdentifier": [
+               {
+                "quote_style": "\"",
+                "value": "b"
+               },
+               {
+                "quote_style": null,
+                "value": "id"
+               }
+              ]
+             }
+            }
+           }
+          }
+         },
+         "relation": {
+          "Table": {
+           "alias": {
+            "at": null,
+            "columns": [],
+            "explicit": true,
+            "name": {
+             "quote_style": "\"",
+             "value": "b"
+            }
+           },
+           "args": null,
+           "index_hints": [],
+           "json_path": null,
+           "name": [
+            {
+             "Identifier": {
+              "quote_style": null,
+              "value": "db"
+             }
+            },
+            {
+             "Identifier": {
+              "quote_style": null,
+              "value": "people"
+             }
+            }
+           ],
+           "partitions": [],
+           "sample": null,
+           "version": null,
+           "with_hints": [],
+           "with_ordinality": false
+          }
+         }
+        }
+       ],
+       "relation": {
+        "Table": {
+         "alias": {
+          "at": null,
+          "columns": [],
+          "explicit": true,
+          "name": {
+           "quote_style": "\"",
+           "value": "a"
+          }
+         },
+         "args": null,
+         "index_hints": [],
+         "json_path": null,
+         "name": [
+          {
+           "Identifier": {
+            "quote_style": null,
+            "value": "db"
+           }
+          },
+          {
+           "Identifier": {
+            "quote_style": null,
+            "value": "people"
+           }
+          }
+         ],
+         "partitions": [],
+         "sample": null,
+         "version": null,
+         "with_hints": [],
+         "with_ordinality": false
+        }
+       }
+      }
+     ],
+     "group_by": {
+      "Expressions": [
+       [],
+       []
+      ]
+     },
+     "having": null,
+     "into": null,
+     "lateral_views": [],
+     "named_window": [],
+     "optimizer_hints": [],
+     "prewhere": null,
+     "projection": [
+      {
+       "ExprWithAlias": {
+        "alias": {
+         "quote_style": "\"",
+         "value": "a"
+        },
+        "expr": {
+         "CompoundIdentifier": [
+          {
+           "quote_style": "\"",
+           "value": "a"
+          },
+          {
+           "quote_style": null,
+           "value": "name"
+          }
+         ]
+        }
+       }
+      },
+      {
+       "ExprWithAlias": {
+        "alias": {
+         "quote_style": "\"",
+         "value": "b"
+        },
+        "expr": {
+         "CompoundIdentifier": [
+          {
+           "quote_style": "\"",
+           "value": "b"
+          },
+          {
+           "quote_style": null,
+           "value": "name"
+          }
+         ]
+        }
+       }
+      }
+     ],
+     "qualify": null,
+     "select_modifiers": null,
+     "select_token": {
+      "token": {
+       "Word": {
+        "keyword": "SELECT",
+        "quote_style": null,
+        "value": "SELECT"
+       }
+      }
+     },
+     "selection": null,
+     "sort_by": [],
+     "top": null,
+     "top_before_distinct": false,
+     "value_table_mode": null,
+     "window_before_qualify": false
+    }
+   },
+   "fetch": null,
+   "for_clause": null,
+   "format_clause": null,
+   "limit_clause": null,
+   "locks": [],
+   "order_by": null,
+   "pipe_operators": [],
+   "settings": null,
+   "with": null
+  }
+ },
  "literals and operators": {
   "Query": {
    "body": {
@@ -2130,6 +2662,1459 @@
             }
            }
           }
+         }
+        }
+       }
+      }
+     },
+     "sort_by": [],
+     "top": null,
+     "top_before_distinct": false,
+     "value_table_mode": null,
+     "window_before_qualify": false
+    }
+   },
+   "fetch": null,
+   "for_clause": null,
+   "format_clause": null,
+   "limit_clause": null,
+   "locks": [],
+   "order_by": null,
+   "pipe_operators": [],
+   "settings": null,
+   "with": null
+  }
+ },
+ "quantified edge whose WHERE applies to every repeat, with an aggregate": {
+  "Query": {
+   "body": {
+    "Select": {
+     "cluster_by": [],
+     "connect_by": [],
+     "distinct": null,
+     "distribute_by": [],
+     "exclude": null,
+     "flavor": "Standard",
+     "from": [
+      {
+       "joins": [
+        {
+         "global": false,
+         "join_operator": {
+          "Inner": {
+           "On": {
+            "BinaryOp": {
+             "left": {
+              "CompoundIdentifier": [
+               {
+                "quote_style": "\"",
+                "value": "$q1"
+               },
+               {
+                "quote_style": "\"",
+                "value": "$c1"
+               }
+              ]
+             },
+             "op": "Eq",
+             "right": {
+              "CompoundIdentifier": [
+               {
+                "quote_style": "\"",
+                "value": "s"
+               },
+               {
+                "quote_style": null,
+                "value": "id"
+               }
+              ]
+             }
+            }
+           }
+          }
+         },
+         "relation": {
+          "Derived": {
+           "alias": {
+            "at": null,
+            "columns": [],
+            "explicit": true,
+            "name": {
+             "quote_style": "\"",
+             "value": "$q1"
+            }
+           },
+           "lateral": false,
+           "sample": null,
+           "subquery": {
+            "body": {
+             "SetOperation": {
+              "left": {
+               "Select": {
+                "cluster_by": [],
+                "connect_by": [],
+                "distinct": null,
+                "distribute_by": [],
+                "exclude": null,
+                "flavor": "Standard",
+                "from": [
+                 {
+                  "joins": [],
+                  "relation": {
+                   "Table": {
+                    "alias": {
+                     "at": null,
+                     "columns": [],
+                     "explicit": true,
+                     "name": {
+                      "quote_style": "\"",
+                      "value": "$e2"
+                     }
+                    },
+                    "args": null,
+                    "index_hints": [],
+                    "json_path": null,
+                    "name": [
+                     {
+                      "Identifier": {
+                       "quote_style": null,
+                       "value": "db"
+                      }
+                     },
+                     {
+                      "Identifier": {
+                       "quote_style": null,
+                       "value": "links"
+                      }
+                     }
+                    ],
+                    "partitions": [],
+                    "sample": null,
+                    "version": null,
+                    "with_hints": [],
+                    "with_ordinality": false
+                   }
+                  }
+                 }
+                ],
+                "group_by": {
+                 "Expressions": [
+                  [],
+                  []
+                 ]
+                },
+                "having": null,
+                "into": null,
+                "lateral_views": [],
+                "named_window": [],
+                "optimizer_hints": [],
+                "prewhere": null,
+                "projection": [
+                 {
+                  "ExprWithAlias": {
+                   "alias": {
+                    "quote_style": "\"",
+                    "value": "$c1"
+                   },
+                   "expr": {
+                    "CompoundIdentifier": [
+                     {
+                      "quote_style": "\"",
+                      "value": "$e2"
+                     },
+                     {
+                      "quote_style": null,
+                      "value": "src"
+                     }
+                    ]
+                   }
+                  }
+                 },
+                 {
+                  "ExprWithAlias": {
+                   "alias": {
+                    "quote_style": "\"",
+                    "value": "$c2"
+                   },
+                   "expr": {
+                    "CompoundIdentifier": [
+                     {
+                      "quote_style": "\"",
+                      "value": "$e2"
+                     },
+                     {
+                      "quote_style": null,
+                      "value": "dst"
+                     }
+                    ]
+                   }
+                  }
+                 }
+                ],
+                "qualify": null,
+                "select_modifiers": null,
+                "select_token": {
+                 "token": {
+                  "Word": {
+                   "keyword": "SELECT",
+                   "quote_style": null,
+                   "value": "SELECT"
+                  }
+                 }
+                },
+                "selection": {
+                 "BinaryOp": {
+                  "left": {
+                   "CompoundIdentifier": [
+                    {
+                     "quote_style": "\"",
+                     "value": "$e2"
+                    },
+                    {
+                     "quote_style": null,
+                     "value": "relation"
+                    }
+                   ]
+                  },
+                  "op": "Eq",
+                  "right": {
+                   "Value": {
+                    "value": {
+                     "SingleQuotedString": "impersonates"
+                    }
+                   }
+                  }
+                 }
+                },
+                "sort_by": [],
+                "top": null,
+                "top_before_distinct": false,
+                "value_table_mode": null,
+                "window_before_qualify": false
+               }
+              },
+              "op": "Union",
+              "right": {
+               "Select": {
+                "cluster_by": [],
+                "connect_by": [],
+                "distinct": null,
+                "distribute_by": [],
+                "exclude": null,
+                "flavor": "Standard",
+                "from": [
+                 {
+                  "joins": [
+                   {
+                    "global": false,
+                    "join_operator": {
+                     "Inner": {
+                      "On": {
+                       "BinaryOp": {
+                        "left": {
+                         "CompoundIdentifier": [
+                          {
+                           "quote_style": "\"",
+                           "value": "$e3"
+                          },
+                          {
+                           "quote_style": null,
+                           "value": "dst"
+                          }
+                         ]
+                        },
+                        "op": "Eq",
+                        "right": {
+                         "CompoundIdentifier": [
+                          {
+                           "quote_style": "\"",
+                           "value": "$v5"
+                          },
+                          {
+                           "quote_style": null,
+                           "value": "id"
+                          }
+                         ]
+                        }
+                       }
+                      }
+                     }
+                    },
+                    "relation": {
+                     "Table": {
+                      "alias": {
+                       "at": null,
+                       "columns": [],
+                       "explicit": true,
+                       "name": {
+                        "quote_style": "\"",
+                        "value": "$v5"
+                       }
+                      },
+                      "args": null,
+                      "index_hints": [],
+                      "json_path": null,
+                      "name": [
+                       {
+                        "Identifier": {
+                         "quote_style": null,
+                         "value": "db"
+                        }
+                       },
+                       {
+                        "Identifier": {
+                         "quote_style": null,
+                         "value": "resources"
+                        }
+                       }
+                      ],
+                      "partitions": [],
+                      "sample": null,
+                      "version": null,
+                      "with_hints": [],
+                      "with_ordinality": false
+                     }
+                    }
+                   },
+                   {
+                    "global": false,
+                    "join_operator": {
+                     "Inner": {
+                      "On": {
+                       "BinaryOp": {
+                        "left": {
+                         "CompoundIdentifier": [
+                          {
+                           "quote_style": "\"",
+                           "value": "$e4"
+                          },
+                          {
+                           "quote_style": null,
+                           "value": "src"
+                          }
+                         ]
+                        },
+                        "op": "Eq",
+                        "right": {
+                         "CompoundIdentifier": [
+                          {
+                           "quote_style": "\"",
+                           "value": "$v5"
+                          },
+                          {
+                           "quote_style": null,
+                           "value": "id"
+                          }
+                         ]
+                        }
+                       }
+                      }
+                     }
+                    },
+                    "relation": {
+                     "Table": {
+                      "alias": {
+                       "at": null,
+                       "columns": [],
+                       "explicit": true,
+                       "name": {
+                        "quote_style": "\"",
+                        "value": "$e4"
+                       }
+                      },
+                      "args": null,
+                      "index_hints": [],
+                      "json_path": null,
+                      "name": [
+                       {
+                        "Identifier": {
+                         "quote_style": null,
+                         "value": "db"
+                        }
+                       },
+                       {
+                        "Identifier": {
+                         "quote_style": null,
+                         "value": "links"
+                        }
+                       }
+                      ],
+                      "partitions": [],
+                      "sample": null,
+                      "version": null,
+                      "with_hints": [],
+                      "with_ordinality": false
+                     }
+                    }
+                   }
+                  ],
+                  "relation": {
+                   "Table": {
+                    "alias": {
+                     "at": null,
+                     "columns": [],
+                     "explicit": true,
+                     "name": {
+                      "quote_style": "\"",
+                      "value": "$e3"
+                     }
+                    },
+                    "args": null,
+                    "index_hints": [],
+                    "json_path": null,
+                    "name": [
+                     {
+                      "Identifier": {
+                       "quote_style": null,
+                       "value": "db"
+                      }
+                     },
+                     {
+                      "Identifier": {
+                       "quote_style": null,
+                       "value": "links"
+                      }
+                     }
+                    ],
+                    "partitions": [],
+                    "sample": null,
+                    "version": null,
+                    "with_hints": [],
+                    "with_ordinality": false
+                   }
+                  }
+                 }
+                ],
+                "group_by": {
+                 "Expressions": [
+                  [],
+                  []
+                 ]
+                },
+                "having": null,
+                "into": null,
+                "lateral_views": [],
+                "named_window": [],
+                "optimizer_hints": [],
+                "prewhere": null,
+                "projection": [
+                 {
+                  "ExprWithAlias": {
+                   "alias": {
+                    "quote_style": "\"",
+                    "value": "$c1"
+                   },
+                   "expr": {
+                    "CompoundIdentifier": [
+                     {
+                      "quote_style": "\"",
+                      "value": "$e3"
+                     },
+                     {
+                      "quote_style": null,
+                      "value": "src"
+                     }
+                    ]
+                   }
+                  }
+                 },
+                 {
+                  "ExprWithAlias": {
+                   "alias": {
+                    "quote_style": "\"",
+                    "value": "$c2"
+                   },
+                   "expr": {
+                    "CompoundIdentifier": [
+                     {
+                      "quote_style": "\"",
+                      "value": "$e4"
+                     },
+                     {
+                      "quote_style": null,
+                      "value": "dst"
+                     }
+                    ]
+                   }
+                  }
+                 }
+                ],
+                "qualify": null,
+                "select_modifiers": null,
+                "select_token": {
+                 "token": {
+                  "Word": {
+                   "keyword": "SELECT",
+                   "quote_style": null,
+                   "value": "SELECT"
+                  }
+                 }
+                },
+                "selection": {
+                 "BinaryOp": {
+                  "left": {
+                   "Nested": {
+                    "BinaryOp": {
+                     "left": {
+                      "CompoundIdentifier": [
+                       {
+                        "quote_style": "\"",
+                        "value": "$e3"
+                       },
+                       {
+                        "quote_style": null,
+                        "value": "relation"
+                       }
+                      ]
+                     },
+                     "op": "Eq",
+                     "right": {
+                      "Value": {
+                       "value": {
+                        "SingleQuotedString": "impersonates"
+                       }
+                      }
+                     }
+                    }
+                   }
+                  },
+                  "op": "And",
+                  "right": {
+                   "Nested": {
+                    "BinaryOp": {
+                     "left": {
+                      "CompoundIdentifier": [
+                       {
+                        "quote_style": "\"",
+                        "value": "$e4"
+                       },
+                       {
+                        "quote_style": null,
+                        "value": "relation"
+                       }
+                      ]
+                     },
+                     "op": "Eq",
+                     "right": {
+                      "Value": {
+                       "value": {
+                        "SingleQuotedString": "impersonates"
+                       }
+                      }
+                     }
+                    }
+                   }
+                  }
+                 }
+                },
+                "sort_by": [],
+                "top": null,
+                "top_before_distinct": false,
+                "value_table_mode": null,
+                "window_before_qualify": false
+               }
+              },
+              "set_quantifier": "All"
+             }
+            },
+            "fetch": null,
+            "for_clause": null,
+            "format_clause": null,
+            "limit_clause": null,
+            "locks": [],
+            "order_by": null,
+            "pipe_operators": [],
+            "settings": null,
+            "with": null
+           }
+          }
+         }
+        },
+        {
+         "global": false,
+         "join_operator": {
+          "Inner": {
+           "On": {
+            "BinaryOp": {
+             "left": {
+              "CompoundIdentifier": [
+               {
+                "quote_style": "\"",
+                "value": "$q1"
+               },
+               {
+                "quote_style": "\"",
+                "value": "$c2"
+               }
+              ]
+             },
+             "op": "Eq",
+             "right": {
+              "CompoundIdentifier": [
+               {
+                "quote_style": "\"",
+                "value": "t"
+               },
+               {
+                "quote_style": null,
+                "value": "id"
+               }
+              ]
+             }
+            }
+           }
+          }
+         },
+         "relation": {
+          "Table": {
+           "alias": {
+            "at": null,
+            "columns": [],
+            "explicit": true,
+            "name": {
+             "quote_style": "\"",
+             "value": "t"
+            }
+           },
+           "args": null,
+           "index_hints": [],
+           "json_path": null,
+           "name": [
+            {
+             "Identifier": {
+              "quote_style": null,
+              "value": "db"
+             }
+            },
+            {
+             "Identifier": {
+              "quote_style": null,
+              "value": "resources"
+             }
+            }
+           ],
+           "partitions": [],
+           "sample": null,
+           "version": null,
+           "with_hints": [],
+           "with_ordinality": false
+          }
+         }
+        }
+       ],
+       "relation": {
+        "Table": {
+         "alias": {
+          "at": null,
+          "columns": [],
+          "explicit": true,
+          "name": {
+           "quote_style": "\"",
+           "value": "s"
+          }
+         },
+         "args": null,
+         "index_hints": [],
+         "json_path": null,
+         "name": [
+          {
+           "Identifier": {
+            "quote_style": null,
+            "value": "db"
+           }
+          },
+          {
+           "Identifier": {
+            "quote_style": null,
+            "value": "resources"
+           }
+          }
+         ],
+         "partitions": [],
+         "sample": null,
+         "version": null,
+         "with_hints": [],
+         "with_ordinality": false
+        }
+       }
+      }
+     ],
+     "group_by": {
+      "Expressions": [
+       [
+        {
+         "CompoundIdentifier": [
+          {
+           "quote_style": "\"",
+           "value": "t"
+          },
+          {
+           "quote_style": null,
+           "value": "name"
+          }
+         ]
+        }
+       ],
+       []
+      ]
+     },
+     "having": null,
+     "into": null,
+     "lateral_views": [],
+     "named_window": [],
+     "optimizer_hints": [],
+     "prewhere": null,
+     "projection": [
+      {
+       "ExprWithAlias": {
+        "alias": {
+         "quote_style": "\"",
+         "value": "reached"
+        },
+        "expr": {
+         "CompoundIdentifier": [
+          {
+           "quote_style": "\"",
+           "value": "t"
+          },
+          {
+           "quote_style": null,
+           "value": "name"
+          }
+         ]
+        }
+       }
+      },
+      {
+       "ExprWithAlias": {
+        "alias": {
+         "quote_style": "\"",
+         "value": "walks"
+        },
+        "expr": {
+         "Function": {
+          "args": {
+           "List": {
+            "args": [
+             {
+              "Unnamed": "Wildcard"
+             }
+            ],
+            "clauses": [],
+            "duplicate_treatment": null
+           }
+          },
+          "filter": null,
+          "name": [
+           {
+            "Identifier": {
+             "quote_style": null,
+             "value": "COUNT"
+            }
+           }
+          ],
+          "null_treatment": null,
+          "over": null,
+          "parameters": "None",
+          "uses_odbc_syntax": false,
+          "within_group": []
+         }
+        }
+       }
+      }
+     ],
+     "qualify": null,
+     "select_modifiers": null,
+     "select_token": {
+      "token": {
+       "Word": {
+        "keyword": "SELECT",
+        "quote_style": null,
+        "value": "SELECT"
+       }
+      }
+     },
+     "selection": {
+      "BinaryOp": {
+       "left": {
+        "CompoundIdentifier": [
+         {
+          "quote_style": "\"",
+          "value": "s"
+         },
+         {
+          "quote_style": null,
+          "value": "name"
+         }
+        ]
+       },
+       "op": "Eq",
+       "right": {
+        "Value": {
+         "value": {
+          "SingleQuotedString": "web"
+         }
+        }
+       }
+      }
+     },
+     "sort_by": [],
+     "top": null,
+     "top_before_distinct": false,
+     "value_table_mode": null,
+     "window_before_qualify": false
+    }
+   },
+   "fetch": null,
+   "for_clause": null,
+   "format_clause": null,
+   "limit_clause": null,
+   "locks": [],
+   "order_by": null,
+   "pipe_operators": [],
+   "settings": null,
+   "with": null
+  }
+ },
+ "quantified edge: one derived table of the chains of 1 and 2 repeats": {
+  "Query": {
+   "body": {
+    "Select": {
+     "cluster_by": [],
+     "connect_by": [],
+     "distinct": null,
+     "distribute_by": [],
+     "exclude": null,
+     "flavor": "Standard",
+     "from": [
+      {
+       "joins": [
+        {
+         "global": false,
+         "join_operator": {
+          "Inner": {
+           "On": {
+            "BinaryOp": {
+             "left": {
+              "CompoundIdentifier": [
+               {
+                "quote_style": "\"",
+                "value": "$q1"
+               },
+               {
+                "quote_style": "\"",
+                "value": "$c1"
+               }
+              ]
+             },
+             "op": "Eq",
+             "right": {
+              "CompoundIdentifier": [
+               {
+                "quote_style": "\"",
+                "value": "a"
+               },
+               {
+                "quote_style": null,
+                "value": "id"
+               }
+              ]
+             }
+            }
+           }
+          }
+         },
+         "relation": {
+          "Derived": {
+           "alias": {
+            "at": null,
+            "columns": [],
+            "explicit": true,
+            "name": {
+             "quote_style": "\"",
+             "value": "$q1"
+            }
+           },
+           "lateral": false,
+           "sample": null,
+           "subquery": {
+            "body": {
+             "SetOperation": {
+              "left": {
+               "Select": {
+                "cluster_by": [],
+                "connect_by": [],
+                "distinct": null,
+                "distribute_by": [],
+                "exclude": null,
+                "flavor": "Standard",
+                "from": [
+                 {
+                  "joins": [],
+                  "relation": {
+                   "Table": {
+                    "alias": {
+                     "at": null,
+                     "columns": [],
+                     "explicit": true,
+                     "name": {
+                      "quote_style": "\"",
+                      "value": "$e2"
+                     }
+                    },
+                    "args": null,
+                    "index_hints": [],
+                    "json_path": null,
+                    "name": [
+                     {
+                      "Identifier": {
+                       "quote_style": null,
+                       "value": "db"
+                      }
+                     },
+                     {
+                      "Identifier": {
+                       "quote_style": null,
+                       "value": "knows"
+                      }
+                     }
+                    ],
+                    "partitions": [],
+                    "sample": null,
+                    "version": null,
+                    "with_hints": [],
+                    "with_ordinality": false
+                   }
+                  }
+                 }
+                ],
+                "group_by": {
+                 "Expressions": [
+                  [],
+                  []
+                 ]
+                },
+                "having": null,
+                "into": null,
+                "lateral_views": [],
+                "named_window": [],
+                "optimizer_hints": [],
+                "prewhere": null,
+                "projection": [
+                 {
+                  "ExprWithAlias": {
+                   "alias": {
+                    "quote_style": "\"",
+                    "value": "$c1"
+                   },
+                   "expr": {
+                    "CompoundIdentifier": [
+                     {
+                      "quote_style": "\"",
+                      "value": "$e2"
+                     },
+                     {
+                      "quote_style": null,
+                      "value": "a"
+                     }
+                    ]
+                   }
+                  }
+                 },
+                 {
+                  "ExprWithAlias": {
+                   "alias": {
+                    "quote_style": "\"",
+                    "value": "$c2"
+                   },
+                   "expr": {
+                    "CompoundIdentifier": [
+                     {
+                      "quote_style": "\"",
+                      "value": "$e2"
+                     },
+                     {
+                      "quote_style": null,
+                      "value": "b"
+                     }
+                    ]
+                   }
+                  }
+                 }
+                ],
+                "qualify": null,
+                "select_modifiers": null,
+                "select_token": {
+                 "token": {
+                  "Word": {
+                   "keyword": "SELECT",
+                   "quote_style": null,
+                   "value": "SELECT"
+                  }
+                 }
+                },
+                "selection": null,
+                "sort_by": [],
+                "top": null,
+                "top_before_distinct": false,
+                "value_table_mode": null,
+                "window_before_qualify": false
+               }
+              },
+              "op": "Union",
+              "right": {
+               "Select": {
+                "cluster_by": [],
+                "connect_by": [],
+                "distinct": null,
+                "distribute_by": [],
+                "exclude": null,
+                "flavor": "Standard",
+                "from": [
+                 {
+                  "joins": [
+                   {
+                    "global": false,
+                    "join_operator": {
+                     "Inner": {
+                      "On": {
+                       "BinaryOp": {
+                        "left": {
+                         "CompoundIdentifier": [
+                          {
+                           "quote_style": "\"",
+                           "value": "$e3"
+                          },
+                          {
+                           "quote_style": null,
+                           "value": "b"
+                          }
+                         ]
+                        },
+                        "op": "Eq",
+                        "right": {
+                         "CompoundIdentifier": [
+                          {
+                           "quote_style": "\"",
+                           "value": "$v5"
+                          },
+                          {
+                           "quote_style": null,
+                           "value": "id"
+                          }
+                         ]
+                        }
+                       }
+                      }
+                     }
+                    },
+                    "relation": {
+                     "Table": {
+                      "alias": {
+                       "at": null,
+                       "columns": [],
+                       "explicit": true,
+                       "name": {
+                        "quote_style": "\"",
+                        "value": "$v5"
+                       }
+                      },
+                      "args": null,
+                      "index_hints": [],
+                      "json_path": null,
+                      "name": [
+                       {
+                        "Identifier": {
+                         "quote_style": null,
+                         "value": "db"
+                        }
+                       },
+                       {
+                        "Identifier": {
+                         "quote_style": null,
+                         "value": "people"
+                        }
+                       }
+                      ],
+                      "partitions": [],
+                      "sample": null,
+                      "version": null,
+                      "with_hints": [],
+                      "with_ordinality": false
+                     }
+                    }
+                   },
+                   {
+                    "global": false,
+                    "join_operator": {
+                     "Inner": {
+                      "On": {
+                       "BinaryOp": {
+                        "left": {
+                         "CompoundIdentifier": [
+                          {
+                           "quote_style": "\"",
+                           "value": "$e4"
+                          },
+                          {
+                           "quote_style": null,
+                           "value": "a"
+                          }
+                         ]
+                        },
+                        "op": "Eq",
+                        "right": {
+                         "CompoundIdentifier": [
+                          {
+                           "quote_style": "\"",
+                           "value": "$v5"
+                          },
+                          {
+                           "quote_style": null,
+                           "value": "id"
+                          }
+                         ]
+                        }
+                       }
+                      }
+                     }
+                    },
+                    "relation": {
+                     "Table": {
+                      "alias": {
+                       "at": null,
+                       "columns": [],
+                       "explicit": true,
+                       "name": {
+                        "quote_style": "\"",
+                        "value": "$e4"
+                       }
+                      },
+                      "args": null,
+                      "index_hints": [],
+                      "json_path": null,
+                      "name": [
+                       {
+                        "Identifier": {
+                         "quote_style": null,
+                         "value": "db"
+                        }
+                       },
+                       {
+                        "Identifier": {
+                         "quote_style": null,
+                         "value": "knows"
+                        }
+                       }
+                      ],
+                      "partitions": [],
+                      "sample": null,
+                      "version": null,
+                      "with_hints": [],
+                      "with_ordinality": false
+                     }
+                    }
+                   }
+                  ],
+                  "relation": {
+                   "Table": {
+                    "alias": {
+                     "at": null,
+                     "columns": [],
+                     "explicit": true,
+                     "name": {
+                      "quote_style": "\"",
+                      "value": "$e3"
+                     }
+                    },
+                    "args": null,
+                    "index_hints": [],
+                    "json_path": null,
+                    "name": [
+                     {
+                      "Identifier": {
+                       "quote_style": null,
+                       "value": "db"
+                      }
+                     },
+                     {
+                      "Identifier": {
+                       "quote_style": null,
+                       "value": "knows"
+                      }
+                     }
+                    ],
+                    "partitions": [],
+                    "sample": null,
+                    "version": null,
+                    "with_hints": [],
+                    "with_ordinality": false
+                   }
+                  }
+                 }
+                ],
+                "group_by": {
+                 "Expressions": [
+                  [],
+                  []
+                 ]
+                },
+                "having": null,
+                "into": null,
+                "lateral_views": [],
+                "named_window": [],
+                "optimizer_hints": [],
+                "prewhere": null,
+                "projection": [
+                 {
+                  "ExprWithAlias": {
+                   "alias": {
+                    "quote_style": "\"",
+                    "value": "$c1"
+                   },
+                   "expr": {
+                    "CompoundIdentifier": [
+                     {
+                      "quote_style": "\"",
+                      "value": "$e3"
+                     },
+                     {
+                      "quote_style": null,
+                      "value": "a"
+                     }
+                    ]
+                   }
+                  }
+                 },
+                 {
+                  "ExprWithAlias": {
+                   "alias": {
+                    "quote_style": "\"",
+                    "value": "$c2"
+                   },
+                   "expr": {
+                    "CompoundIdentifier": [
+                     {
+                      "quote_style": "\"",
+                      "value": "$e4"
+                     },
+                     {
+                      "quote_style": null,
+                      "value": "b"
+                     }
+                    ]
+                   }
+                  }
+                 }
+                ],
+                "qualify": null,
+                "select_modifiers": null,
+                "select_token": {
+                 "token": {
+                  "Word": {
+                   "keyword": "SELECT",
+                   "quote_style": null,
+                   "value": "SELECT"
+                  }
+                 }
+                },
+                "selection": null,
+                "sort_by": [],
+                "top": null,
+                "top_before_distinct": false,
+                "value_table_mode": null,
+                "window_before_qualify": false
+               }
+              },
+              "set_quantifier": "All"
+             }
+            },
+            "fetch": null,
+            "for_clause": null,
+            "format_clause": null,
+            "limit_clause": null,
+            "locks": [],
+            "order_by": null,
+            "pipe_operators": [],
+            "settings": null,
+            "with": null
+           }
+          }
+         }
+        },
+        {
+         "global": false,
+         "join_operator": {
+          "Inner": {
+           "On": {
+            "BinaryOp": {
+             "left": {
+              "CompoundIdentifier": [
+               {
+                "quote_style": "\"",
+                "value": "$q1"
+               },
+               {
+                "quote_style": "\"",
+                "value": "$c2"
+               }
+              ]
+             },
+             "op": "Eq",
+             "right": {
+              "CompoundIdentifier": [
+               {
+                "quote_style": "\"",
+                "value": "b"
+               },
+               {
+                "quote_style": null,
+                "value": "id"
+               }
+              ]
+             }
+            }
+           }
+          }
+         },
+         "relation": {
+          "Table": {
+           "alias": {
+            "at": null,
+            "columns": [],
+            "explicit": true,
+            "name": {
+             "quote_style": "\"",
+             "value": "b"
+            }
+           },
+           "args": null,
+           "index_hints": [],
+           "json_path": null,
+           "name": [
+            {
+             "Identifier": {
+              "quote_style": null,
+              "value": "db"
+             }
+            },
+            {
+             "Identifier": {
+              "quote_style": null,
+              "value": "people"
+             }
+            }
+           ],
+           "partitions": [],
+           "sample": null,
+           "version": null,
+           "with_hints": [],
+           "with_ordinality": false
+          }
+         }
+        }
+       ],
+       "relation": {
+        "Table": {
+         "alias": {
+          "at": null,
+          "columns": [],
+          "explicit": true,
+          "name": {
+           "quote_style": "\"",
+           "value": "a"
+          }
+         },
+         "args": null,
+         "index_hints": [],
+         "json_path": null,
+         "name": [
+          {
+           "Identifier": {
+            "quote_style": null,
+            "value": "db"
+           }
+          },
+          {
+           "Identifier": {
+            "quote_style": null,
+            "value": "people"
+           }
+          }
+         ],
+         "partitions": [],
+         "sample": null,
+         "version": null,
+         "with_hints": [],
+         "with_ordinality": false
+        }
+       }
+      }
+     ],
+     "group_by": {
+      "Expressions": [
+       [],
+       []
+      ]
+     },
+     "having": null,
+     "into": null,
+     "lateral_views": [],
+     "named_window": [],
+     "optimizer_hints": [],
+     "prewhere": null,
+     "projection": [
+      {
+       "ExprWithAlias": {
+        "alias": {
+         "quote_style": "\"",
+         "value": "reached"
+        },
+        "expr": {
+         "CompoundIdentifier": [
+          {
+           "quote_style": "\"",
+           "value": "b"
+          },
+          {
+           "quote_style": null,
+           "value": "name"
+          }
+         ]
+        }
+       }
+      }
+     ],
+     "qualify": null,
+     "select_modifiers": null,
+     "select_token": {
+      "token": {
+       "Word": {
+        "keyword": "SELECT",
+        "quote_style": null,
+        "value": "SELECT"
+       }
+      }
+     },
+     "selection": {
+      "BinaryOp": {
+       "left": {
+        "CompoundIdentifier": [
+         {
+          "quote_style": "\"",
+          "value": "a"
+         },
+         {
+          "quote_style": null,
+          "value": "name"
+         }
+        ]
+       },
+       "op": "Eq",
+       "right": {
+        "Value": {
+         "value": {
+          "SingleQuotedString": "x"
          }
         }
        }

@@ -126,6 +126,39 @@ CASES = [
         f"""SELECT c.c_custkey, SUM(o.o_totalprice) AS spend FROM {T}customer c JOIN {T}orders o ON o.o_custkey = c.c_custkey
         GROUP BY c.c_custkey ORDER BY spend DESC LIMIT 5""",
     ),
+    (
+        "quantified self-edge, 1 to 2 repeats: every walk is a row",
+        ORG,
+        """USE org MATCH (e:Employee)-[:REPORTS_TO]->{1,2}(b:Employee) RETURN e.name AS employee, b.name AS boss""",
+        """SELECT e.ename, b.ename FROM testdata.org.emp e JOIN testdata.org.emp b ON e.mgr = b.empno
+        UNION ALL SELECT e.ename, b.ename FROM testdata.org.emp e JOIN testdata.org.emp m ON e.mgr = m.empno
+        JOIN testdata.org.emp b ON m.mgr = b.empno""",
+    ),
+    (
+        "left-pointing quantified edge reads the same walks from the other end",
+        ORG,
+        """USE org MATCH (b:Employee)<-[:REPORTS_TO]-{1,2}(e:Employee) RETURN e.name AS employee, b.name AS boss""",
+        """SELECT e.ename, b.ename FROM testdata.org.emp e JOIN testdata.org.emp b ON e.mgr = b.empno
+        UNION ALL SELECT e.ename, b.ename FROM testdata.org.emp e JOIN testdata.org.emp m ON e.mgr = m.empno
+        JOIN testdata.org.emp b ON m.mgr = b.empno""",
+    ),
+    (
+        "quantified edge, exact count, with an aggregate",
+        ORG,
+        """USE org MATCH (e:Employee)-[:REPORTS_TO]->{3}(b:Employee) RETURN b.name AS boss, COUNT(*) AS reports GROUP BY boss""",
+        """SELECT b.ename, COUNT(*) FROM testdata.org.emp e JOIN testdata.org.emp m1 ON e.mgr = m1.empno
+        JOIN testdata.org.emp m2 ON m1.mgr = m2.empno JOIN testdata.org.emp b ON m2.mgr = b.empno GROUP BY b.ename""",
+    ),
+    (
+        "quantified edge followed by another edge-free filter on the far end",
+        ORG,
+        """USE org MATCH (e:Employee)-[:REPORTS_TO]->{1,3}(b:Employee) WHERE b.job = 'PRESIDENT' RETURN DISTINCT e.name AS employee""",
+        """SELECT DISTINCT e.ename FROM testdata.org.emp e JOIN testdata.org.emp b ON e.mgr = b.empno WHERE b.job = 'PRESIDENT'
+        UNION SELECT DISTINCT e.ename FROM testdata.org.emp e JOIN testdata.org.emp m ON e.mgr = m.empno
+        JOIN testdata.org.emp b ON m.mgr = b.empno WHERE b.job = 'PRESIDENT'
+        UNION SELECT DISTINCT e.ename FROM testdata.org.emp e JOIN testdata.org.emp m1 ON e.mgr = m1.empno
+        JOIN testdata.org.emp m2 ON m1.mgr = m2.empno JOIN testdata.org.emp b ON m2.mgr = b.empno WHERE b.job = 'PRESIDENT'""",
+    ),
 ]
 
 

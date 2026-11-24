@@ -44,6 +44,17 @@ ODD = """CREATE PROPERTY GRAPH "My Graph"
     "Odd Schema"."Weird Table" AS w KEY ("Key Col") LABEL Thing PROPERTIES ("Key Col" AS key, "Value" AS value)
   )"""
 
+LINKS = """CREATE PROPERTY GRAPH g
+  VERTEX TABLES (
+    db.resources KEY (id) LABEL Resource PROPERTIES (id, name)
+  )
+  EDGE TABLES (
+    db.links KEY (src, dst, relation)
+      SOURCE KEY (src) REFERENCES resources (id)
+      DESTINATION KEY (dst) REFERENCES resources (id)
+      LABEL LINK PROPERTIES (relation)
+  )"""
+
 CASES = [
     Case(
         "single node with a filter",
@@ -126,6 +137,44 @@ CASES = [
         'TRUE AS "t", NULL AS "n", CAST(\'2020-01-01 00:00:00\' AS TIMESTAMP) AS "ts" '
         'FROM db.people AS "p" '
         "WHERE (\"p\".name <> 'it''s') AND (\"p\".born < (CAST('2000-01-01' AS DATE) + INTERVAL '14' DAY))",
+    ),
+    Case(
+        "quantified edge: one derived table of the chains of 1 and 2 repeats",
+        PEOPLE,
+        "USE g MATCH (a:Person)-[:KNOWS]->{1,2}(b:Person) WHERE a.name = 'x' RETURN b.name AS reached",
+        'SELECT "b".name AS "reached" FROM db.people AS "a" '
+        'INNER JOIN (SELECT "$e2".a AS "$c1", "$e2".b AS "$c2" FROM db.knows AS "$e2" '
+        'UNION ALL SELECT "$e3".a AS "$c1", "$e4".b AS "$c2" FROM db.knows AS "$e3" '
+        'INNER JOIN db.people AS "$v5" ON "$e3".b = "$v5".id '
+        'INNER JOIN db.knows AS "$e4" ON "$e4".a = "$v5".id) AS "$q1" ON "$q1"."$c1" = "a".id '
+        'INNER JOIN db.people AS "b" ON "$q1"."$c2" = "b".id '
+        "WHERE \"a\".name = 'x'",
+    ),
+    Case(
+        "left-pointing quantified edge with an exact count",
+        PEOPLE,
+        "USE g MATCH (a:Person)<-[:KNOWS]-{2}(b:Person) RETURN a.name AS a, b.name AS b",
+        'SELECT "a".name AS "a", "b".name AS "b" FROM db.people AS "a" '
+        'INNER JOIN (SELECT "$e2".a AS "$c1", "$e3".b AS "$c2" FROM db.knows AS "$e2" '
+        'INNER JOIN db.people AS "$v4" ON "$e2".b = "$v4".id '
+        'INNER JOIN db.knows AS "$e3" ON "$e3".a = "$v4".id) AS "$q1" ON "$q1"."$c2" = "a".id '
+        'INNER JOIN db.people AS "b" ON "$q1"."$c1" = "b".id',
+    ),
+    Case(
+        "quantified edge whose WHERE applies to every repeat, with an aggregate",
+        LINKS,
+        "USE g MATCH (s:Resource)-[r:LINK WHERE r.relation = 'impersonates']->{1,2}(t:Resource) "
+        "WHERE s.name = 'web' RETURN t.name AS reached, COUNT(*) AS walks GROUP BY reached",
+        'SELECT "t".name AS "reached", COUNT(*) AS "walks" FROM db.resources AS "s" '
+        'INNER JOIN (SELECT "$e2".src AS "$c1", "$e2".dst AS "$c2" FROM db.links AS "$e2" '
+        "WHERE \"$e2\".relation = 'impersonates' "
+        'UNION ALL SELECT "$e3".src AS "$c1", "$e4".dst AS "$c2" FROM db.links AS "$e3" '
+        'INNER JOIN db.resources AS "$v5" ON "$e3".dst = "$v5".id '
+        'INNER JOIN db.links AS "$e4" ON "$e4".src = "$v5".id '
+        "WHERE (\"$e3\".relation = 'impersonates') AND (\"$e4\".relation = 'impersonates')) "
+        'AS "$q1" ON "$q1"."$c1" = "s".id '
+        'INNER JOIN db.resources AS "t" ON "$q1"."$c2" = "t".id '
+        "WHERE \"s\".name = 'web' GROUP BY \"t\".name",
     ),
     Case(
         "quoted DDL names and disconnected paths",
